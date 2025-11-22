@@ -16,12 +16,11 @@ import { useState } from "react";
 import { Input } from "./components/ui/input";
 import moment from "jalali-moment";
 // const normalise = s => s.replace(/[\u200E\u200F]/g, '');
-export function DoorkariDialog({ item, reload }: { item: KarItem, reload: Function }) {
+export function DoorkariDialog({ item, reload, employeeRef, employeeName }: { item: KarItem, reload: Function, employeeRef: number, employeeName: string }) {
     const [loading, setLoading] = useState<boolean>(false);
     const [startTime, setStartTime] = useState(item.doorKariItem?.fromTime ?? '9:00');
     const [endTime, setEndTime] = useState(item.doorKariItem?.toTime ?? '18:00');
     const [description, setDescription] = useState(item.doorKariItem?.description ?? 'دورکاری');
-    // console.log(`1763492400000`, moment(1763492400000).format());
     const save = async () => {
         setLoading(true);
         try {
@@ -53,7 +52,7 @@ export function DoorkariDialog({ item, reload }: { item: KarItem, reload: Functi
             let durationMinutes = endTimeMoment.diff(startTimeMoment, 'minute', true);
             console.log(`duration minutes=`, durationMinutes);
             await ATTENDENCE_API.createDoorkari({
-                employeeRef: 6305,
+                employeeRef: employeeRef,
                 durationMinutes,
                 fromDateTime: startTimeMoment.valueOf(),
                 toDateTime: endTimeMoment.valueOf(),
@@ -105,6 +104,11 @@ export function DoorkariDialog({ item, reload }: { item: KarItem, reload: Functi
                                 onChange={e => setDescription(e.target.value)}
                                 readOnly={item.doorKariItem != undefined}
                             />
+                        </div>
+                        <div className="w-full grid grid-cols-3 text-center">
+                            <span>مشخصات شما:</span>
+                            <div>{employeeRef}</div>
+                            <div>{employeeName}</div>
                         </div>
                         {item.doorKariItem == undefined ? undefined :
                             <>

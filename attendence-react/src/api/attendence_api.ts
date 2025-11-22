@@ -1423,5 +1423,67 @@ export const ATTENDENCE_API = {
             console.error(error);
             throw 'failed to submit';
         }
+    },
+    async getEmployeeName(): Promise<string> {
+        if(IS_DEV)
+            return 'بهزاد تست';
+        const url = 'https://attendance.snappfood.ir/SnappPortal/api/FrontEnd/Shell/StaticData';
+        const options = {
+            method: 'GET',
+            headers: {
+                accept: '*/*',
+                'accept-language': 'en-US,en;q=0.9,fa;q=0.8,de;q=0.7',
+                cookie: '_gcl_au=1.1.1169149196.1761657323; _ym_uid=1761657324499702902; _ym_d=1761657324; analytics_campaign={%22source%22:%22google%22%2C%22medium%22:%22organic%22}; _hjSessionUser_3300609=eyJpZCI6Ijk1NzIyODNiLTRmZTEtNTQzOC1hNDVlLTBkMzlmNDgxNTM2OSIsImNyZWF0ZWQiOjE3NjI4NjE3NDE4MDEsImV4aXN0aW5nIjp0cnVlfQ==; _clck=1loqhaz%5E2%5Eg11%5E0%5E2127; _ga_W2FYNR9BLD=GS2.1.s1763301411$o12$g0$t1763302700$j60$l0$h0; rl_page_init_referrer=RudderEncrypt%3AU2FsdGVkX1%2F58r4TtoD5ySeXlyF3g1JKjZGr%2F2xV0c8%3D; _ga=GA1.2.470503137.1761640339; rl_session=RudderEncrypt%3AU2FsdGVkX1%2FANifacMsHVehkyq8w%2FRFjWELNrZOz0q4vNvq0HU7aLgm6bKDW5iXVQW1cJ5E51g7e5KvvTC56VUit9xJCbgmmSpTNvumT4EXrDWT7HCv1ygMrSGxfNhLvTyEfIlrub8lCioatfPfhsg%3D%3D; rl_user_id=RudderEncrypt%3AU2FsdGVkX1%2Behg2JiAbifjnfDj5q1p45r11VNMLO9grUpI0VPnBcFSyay22rQ3xr; rl_trait=RudderEncrypt%3AU2FsdGVkX1%2BB62yNIbsQHsbXv3UlBF%2FM2Kr%2BmlckdElyEIRohdwRW358ryI1c42fsx0NENF9JGBsjLdSHOOlDySBdjw59XBe2idxkl6OCucAXh0W9EOnc7pFeAK%2BhO1m; rl_group_id=RudderEncrypt%3AU2FsdGVkX1%2BI26xV4zCcEx9TA%2FY9y9eh1u6uo4JmGIQ%3D; rl_group_trait=RudderEncrypt%3AU2FsdGVkX19Dm0sv9ptM55Fy0rdU1V6nZva6BMC7JZs%3D; rl_anonymous_id=RudderEncrypt%3AU2FsdGVkX1%2F1DK01RTthcJCMPA924a0w1pmFLWO8a48qDTu1CZkev5Mdfj9MpP8oe0ArQpj91v07grNmpc8MOQ%3D%3D; amplitude_id_cf620211dc906be4ab7c92f52766759dsnappfood.ir=eyJkZXZpY2VJZCI6IjQ3YjVlOGQ2LTNjMTgtNGYxOS1hOTRmLTJlMjk3YjJhOTZhZVIiLCJ1c2VySWQiOm51bGwsIm9wdE91dCI6ZmFsc2UsInNlc3Npb25JZCI6MTc2MzQ1MDU0MzE2OCwibGFzdEV2ZW50VGltZSI6MTc2MzQ1MTA1Mzk2MCwiZXZlbnRJZCI6MCwiaWRlbnRpZnlJZCI6MCwic2VxdWVuY2VOdW1iZXIiOjB9; rahkaran-culture=c=fa-IR|uic=fa-IR; rahkaran-xsrf=CfDJ8OXOtpZ5WotGuQAshYdU0XvtD8GGr6St-7vU1WtXYdhx7mTx3MoMki0f2DoDE72KE1_CeAU3ovKdywuem8UzA9ED_3LS5ri_XctKOfgSgc7Rs8gRM-pqkBbtW0UYvUl_8KriPu6AFDQZHAZShr0lnqo; XSRF-TOKEN=CfDJ8OXOtpZ5WotGuQAshYdU0Xuf0-BbwufpF7o1suMLyJN_mjiynsBduV0jJJaDCkUlPgcYRoumQYFIRJEIxz_5Xsy3bTNtV8IkJjmsZKV-9CIqqt9qMqnfFBN_eNwWNgm-AMcm0y5zF965PkhEXVP-kwsYv_jz-iEM-S1mkKQAJrP1ovZUL_X1OMAZhX1iUz0Log; rahkaran-auth=CfDJ8OXOtpZ5WotGuQAshYdU0XucpqR-TuVYLme6oIS5Hp-ds16YAEXH2bsdoB4f9PXgolMYiJXPFej8gocIeD8wTHHQaf6agSxw6eOwLAmPOXtRIXsU3CxTuwnbf3N299v8KG4X1_AqVuKLAuC2KzDnU1tR7P1hKNJL6I6aGD1aIqKtNNq9MvsLgmucyGlOw1XFKBvOi5JD3VtRjKJfzPh_hk18lBO19VSq92a4fvTOW-SkaoxwBFFnk9z_pLm3zWt0Zc_1uqaCG9voOH4GLqkXbUBWfOp0KYT_3GXp8RniVjb9Wq-pLNVzewdpqjcra3EikcM97I8lKzTQIdosSV90ppHd8v21dxDYLy70x26-EbLhyf_R5xiai5BL0rIrCKde2iVXXqeQSG_09MdYt0TZdWj_FmRMCwtdoM3akaVqNAZFqGhhWC_Q_GvqEpvyzXxkNXIhMe9pFP5ofCIUubVycT5PSWTlRj6jP-AEsR0aVPBtj2c8SsEttwKcpyvcW5EN4QblxL-82-bVPlOmCau8TK6YD-UhOQKUY7UVOSCvMUaGTYT9bL08RQ94FBEtnmd4Fso-FS_INjMbcJQTAGs12jAsJtd-1rmcjTI8uSg5qBY-2BVg19DVIrgveiU1JxhhYyxuJ2DcJSqmHrWFrN2TWaM',
+                priority: 'u=1, i',
+                referer: 'https://attendance.snappfood.ir/SnappPortal/',
+                'sec-ch-ua': '"Chromium";v="142", "Google Chrome";v="142", "Not_A Brand";v="99"',
+                'sec-ch-ua-mobile': '?0',
+                'sec-ch-ua-platform': '"macOS"',
+                'sec-fetch-dest': 'empty',
+                'sec-fetch-mode': 'cors',
+                'sec-fetch-site': 'same-origin',
+                'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36',
+                'x-xsrf-token': 'CfDJ8OXOtpZ5WotGuQAshYdU0Xuf0-BbwufpF7o1suMLyJN_mjiynsBduV0jJJaDCkUlPgcYRoumQYFIRJEIxz_5Xsy3bTNtV8IkJjmsZKV-9CIqqt9qMqnfFBN_eNwWNgm-AMcm0y5zF965PkhEXVP-kwsYv_jz-iEM-S1mkKQAJrP1ovZUL_X1OMAZhX1iUz0Log'
+            }
+        };
+
+        try {
+            const response = await fetch(url, options);
+            const data = await response.json();
+            return data.user.displayName;
+            // console.log(data);
+        } catch (error) {
+            console.error(error);
+        }
+    },
+    async getCurrentEmployeeId(): Promise<number> {
+        if (IS_DEV)
+            return 6305;
+        const url = 'https://attendance.snappfood.ir/SnappPortal/api/HCM/Mission/Portal/MissionDocument/getCurrentEmployeeId';
+        const options = {
+            method: 'GET',
+            headers: {
+                accept: 'application/json, text/plain, */*',
+                'accept-language': 'en-US,en;q=0.9,fa;q=0.8,de;q=0.7',
+                cookie: COOKIE,
+                priority: 'u=1, i',
+                referer: 'https://attendance.snappfood.ir/SnappPortal/apps/hcm-mission-portal/mission-document',
+                'sec-ch-ua': '"Chromium";v="142", "Google Chrome";v="142", "Not_A Brand";v="99"',
+                'sec-ch-ua-mobile': '?0',
+                'sec-ch-ua-platform': '"macOS"',
+                'sec-fetch-dest': 'empty',
+                'sec-fetch-mode': 'cors',
+                'sec-fetch-site': 'same-origin',
+                'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36',
+                'x-xsrf-token': TOKEN,
+            }
+        };
+        try {
+            const response = await fetch(url, options);
+            const data = await response.text();
+            return parseInt(data);
+        } catch (error) {
+            console.error(error);
+        }
     }
 }

@@ -1,7 +1,6 @@
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -18,11 +17,15 @@ import { RecordStatus } from "./data/record_status"
 import { DoorkariDialog } from "./doorkari-dialog"
 import { Button } from "./components/ui/button"
 import { FoodousDialog } from "./foodous-dialog"
+import { UserInfoView } from "./user-info-view"
+import { HelperLinksDialog } from "./helper-links-dialog"
 const normalise = s => s.replace(/[\u200E\u200F]/g, '');
 const weekdayName = (n: number) =>
   moment().locale('fa').day(n).format('dddd');
 
 function App() {
+  const [employeeRef, setEmployeeRef] = useState<number>(-1);
+  const [employeeName, setEmployeeName] = useState<string>('');
   const [items, setItems] = useState<KarItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | undefined>(undefined);
@@ -33,6 +36,12 @@ function App() {
       setError(undefined);
       setLoading(true);
       setItems([]);
+
+      let ref = await ATTENDENCE_API.getCurrentEmployeeId();
+      let name = await ATTENDENCE_API.getEmployeeName();
+      setEmployeeRef(ref);
+      setEmployeeName(name);
+
       let doorKariItems = await ATTENDENCE_API.getDoorKariList();
       let hozuriItems = await ATTENDENCE_API.getHozuriList();
       console.log(`door kari api:`, doorKariItems);
@@ -83,17 +92,19 @@ function App() {
         <div className="w-full flex flex-row gap-2 items-center content-center mb-2 mt-4">
           <h1 className="font-black">سامانه ثبت تردد انسان دوست اسنپفود</h1>
           <h3>{todayString}</h3>
+          <UserInfoView />
+          <HelperLinksDialog />
           <Button variant="outline" size="icon-sm" onClick={reloadListData}>🔄</Button>
           <div className="grow" />
           <div className="text-xs">ساخته شده توسط همکاران اسنپفود</div>
           <FoodousDialog />
         </div>
-        <DoorkariTable items={items} reload={reloadListData} />
+        <DoorkariTable items={items} reload={reloadListData} employeeName={employeeName} employeeRef={employeeRef} />
       </div>
     </>
   )
 }
-export function DoorkariTable({ items, reload }: { items: KarItem[], reload: Function }) {
+export function DoorkariTable({ items, reload, employeeName, employeeRef }: { items: KarItem[], reload: Function, employeeRef: number, employeeName: string }) {
   return (
     <Table>
       {/* <TableCaption>A list of your recent invoices.</TableCaption> */}
@@ -146,7 +157,7 @@ export function DoorkariTable({ items, reload }: { items: KarItem[], reload: Fun
               <TableCell className="text-center">{status_display}</TableCell>
               <TableCell className="text-center">{description}</TableCell>
               <TableCell className="text-center">
-                {isOffDay ? <></> : <ActionButton status={status} item={item} reload={reload} />}
+                {isOffDay ? <></> : <ActionButton employeeName={employeeName} employeeRef={employeeRef} status={status} item={item} reload={reload} />}
               </TableCell>
             </TableRow>
           );
@@ -155,18 +166,18 @@ export function DoorkariTable({ items, reload }: { items: KarItem[], reload: Fun
     </Table>
   )
 }
-function ActionButton({ status, item, reload }: { status: string, item: KarItem, reload: Function }) {
+function ActionButton({ status, item, reload, employeeRef, employeeName }: { status: string, item: KarItem, reload: Function, employeeRef: number, employeeName: string }) {
   if (status == RecordStatus.None)
     return (
       <>
-        <DoorkariDialog item={item} reload={reload} />
+        <DoorkariDialog employeeName={employeeName} employeeRef={employeeRef} item={item} reload={reload} />
         <HozuriDialog item={item} reload={reload} />
       </>
     );
   if (status == RecordStatus.Hozuri)
     return (<HozuriDialog item={item} reload={reload} />);
   if (status == RecordStatus.DoorKari)
-    return (<DoorkariDialog item={item} reload={reload} />)
+    return (<DoorkariDialog employeeName={employeeName} employeeRef={employeeRef} item={item} reload={reload} />)
   return undefined;
 }
 export default App
