@@ -1,0 +1,42 @@
+meta {
+  name: lll
+  type: http
+  seq: 3
+}
+
+post {
+  url: https://attendance.snappfood.ir/SnappPortal/api/Authentication/Login
+  body: json
+  auth: inherit
+}
+
+headers {
+  accept: */*
+  accept-language: en-US,en;q=0.9
+  content-type: application/json
+  Cookie: rahkaran-culture=c=fa-IR|uic=fa-IR
+  origin: https://attendance.snappfood.ir
+  priority: u=1, i
+  referer: https://attendance.snappfood.ir/SnappPortal/~/identity/login/?return=%2FSnappPortal%2F
+  sec-ch-ua: "Chromium";v="142", "Google Chrome";v="142", "Not_A Brand";v="99"
+  sec-ch-ua-mobile: ?0
+  sec-ch-ua-platform: "macOS"
+  sec-fetch-dest: empty
+  sec-fetch-mode: cors
+  sec-fetch-site: same-origin
+  user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36
+  x-requested-with: XMLHttpRequest
+  x-xsrf-token;: undefined
+}
+
+body:json {
+  {
+    "username": "behzad.abedinzadeh",
+    "password": "294a4bb936d39ebcd09fcc0135cf2d8be92480791efa5d86fbaf0c3c89adcb41e3e7b2d4ffe549e28fcb7164763036c0e1daa25c4fe03159540e6d252a7412efe860c90ab3026a5ba83584b9817a5640e8882858acdd31a99daeb9b02215e214402d8ac54c07739dc826e6723556085f3ef26be82a0c76061fa06a91bb060bbb",
+    "passwordKey": "fefacde5-f157-41ea-9f1e-04845344e943"
+  }
+}
+
+settings {
+  encodeUrl: false
+}

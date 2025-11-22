@@ -1,0 +1,18 @@
+{
+    "manifest_version": 3,
+    "name": "Header Sniffer + Auto Popup",
+    "version": "1.0",
+    "permissions": [
+        "webRequest",
+        "storage"
+    ],
+    "host_permissions": [
+        "*://*/*"
+    ],
+    "background": {
+        "service_worker": "background.js"
+    },
+    "action": {
+        "default_popup": "popup.html"
+    }
+}
