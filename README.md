@@ -6,6 +6,7 @@ Note that this repo has 0 api calls outside the attendence api and we dont keep 
 - Goto chrome extensions.
 - Enable Developer mode.
 - Load the Extension.
+- Login to attendence once. The plugin will show popup to help you.
 ## Folder structure:
 There's a react project: attendence-react.
 
