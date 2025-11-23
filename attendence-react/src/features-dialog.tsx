@@ -18,12 +18,13 @@ export function FeaturesDialog() {
             </AlertDialogTrigger>
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle>امکانات نسخه 0.0.3</AlertDialogTitle>
+                    <AlertDialogTitle>امکانات نسخه 0.0.4</AlertDialogTitle>
                     <AlertDialogDescription className="flex flex-col gap-4 w-full items-center content-start justify-start mt-2 text-right max-h-[80vh] overflow-y-scroll">
                         <ul>
                             <li>✅ لیست دورکاری ها با سامانه اصلی سینک است.</li>
                             <li>✅ ثبت دورکاری با سامانه اصلی سینک است.</li>
                             <li>✅ لیست مرخصی ها با سامانه اصلی سینک است.</li>
+                            <li>🔔 یادآور ثبت تردد هر دوساعت یکبار!</li>
                             <li>❌ امکان ثبت آسان مرخصی</li>
                             <li>❌ لیست حضوری و ثبت حضوری با سامانه اصلی سینک نیست! </li>
                         </ul>

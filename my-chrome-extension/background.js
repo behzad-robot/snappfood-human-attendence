@@ -1,4 +1,21 @@
-let lastShow = 0;
+let last_popup_show = 0;
+let last_notif_show = 0;
+const NOTIF_INTERVAL = 1_000 * 60 * 60 * 2;
+console.log(`loaded background.js`);
+const checkShowNotif = () => {
+    console.log(`check show notif`);
+    if (Date.now() - last_notif_show <= NOTIF_INTERVAL)
+        return;
+    last_notif_show = Date.now();
+    chrome.notifications.create({
+        type: "basic",
+        iconUrl: "icons/icon-128.png",
+        title: "به attendence سر زدی؟",
+        message: "اگر کارای امروزت رو ثبت نکردی ثبت کن!"
+    });
+};
+setInterval(checkShowNotif, 60 * 1_000);
+checkShowNotif();
 chrome.webRequest.onBeforeSendHeaders.addListener(
     async (details) => {
         try {
@@ -28,9 +45,9 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
                     'updatedAt': Date.now(),
                 });
                 console.log(await chrome.storage.local.get());
-                if (Date.now() - lastShow <= 60_000)
+                if (Date.now() - last_popup_show <= 60_000)
                     return;
-                lastShow = Date.now();
+                last_popup_show = Date.now();
                 chrome.action.openPopup();
             }
         }
