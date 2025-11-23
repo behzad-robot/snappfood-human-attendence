@@ -1,3 +1,4 @@
+let lastShow = 0;
 chrome.webRequest.onBeforeSendHeaders.addListener(
     async (details) => {
         try {
@@ -24,8 +25,12 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
                 await chrome.storage.local.set({
                     'authToken': auth.value,
                     'cookie': cookie.value,
+                    'updatedAt': Date.now(),
                 });
                 console.log(await chrome.storage.local.get());
+                if (Date.now() - lastShow <= 60_000)
+                    return;
+                lastShow = Date.now();
                 chrome.action.openPopup();
             }
         }

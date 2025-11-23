@@ -19,6 +19,7 @@ import { Button } from "./components/ui/button"
 import { FoodousDialog } from "./foodous-dialog"
 import { UserInfoView } from "./user-info-view"
 import { HelperLinksDialog } from "./helper-links-dialog"
+import { Spinner } from "./components/ui/spinner"
 const normalise = s => s.replace(/[\u200E\u200F]/g, '');
 const weekdayName = (n: number) =>
   moment().locale('fa').day(n).format('dddd');
@@ -44,6 +45,11 @@ function App() {
 
       let doorKariItems = await ATTENDENCE_API.getDoorKariList();
       let hozuriItems = await ATTENDENCE_API.getHozuriList();
+      let leaveRequests = await ATTENDENCE_API.getMorakhasiList();
+      // leaveRequests.map((r) => {
+      //   console.log(`leave request:`, r.fromDateTime_Display, '=>');
+      //   console.log(moment(r.fromDateTime).locale('fa').format('YYYY/MM/DD'));
+      // });
       console.log(`door kari api:`, doorKariItems);
       let _items: KarItem[] = [];
       let offset = 0;
@@ -54,11 +60,13 @@ function App() {
         let dateStr = d.format('YYYY/MM/DD');
         let doorKariItem = doorKariItems.find(t => normalise(t.fromDateTime_Display) == normalise(dateStr));
         let hozuriItem = doorKariItem != undefined ? undefined : hozuriItems.find(c => normalise(c.date) == normalise(dateStr));
+        let leaveRequest = leaveRequests.find(t => normalise(moment(t.fromDateTime).locale('fa').format('YYYY/MM/DD')) == normalise(dateStr));
         let item: KarItem = {
           date: dateStr,
           weekday: d.weekday(),
           doorKariItem: doorKariItem,
           hozuriItem: hozuriItem,
+          leaveRequest: leaveRequest,
         };
         // console.log(d.format('YYYY/MM/DD'), item);
         _items.push(item);
@@ -77,15 +85,6 @@ function App() {
   useEffect(() => {
     reloadListData();
   }, []);
-  if (loading)
-    return (
-      <div>Loading...</div>
-    );
-  if (error) {
-    return (
-      <div className="w-full text-center my-2 text-red-500 font-bold">{error}</div>
-    )
-  }
   return (
     <>
       <div className="container mx-auto px-4">
@@ -99,7 +98,15 @@ function App() {
           <div className="text-xs">ساخته شده توسط همکاران اسنپفود</div>
           <FoodousDialog />
         </div>
-        <DoorkariTable items={items} reload={reloadListData} employeeName={employeeName} employeeRef={employeeRef} />
+        {loading ? <div className="text-center py-4 flex flex-row justify-center items-center content-center"><Spinner className="size-12" /></div> : undefined}
+        {error ? <div className="bg-red-400 text-2xl rounded-md py-2 px-4 flex flex-col gap-2 font-sans">
+          <h1>خطا:</h1>
+          <p>{error}</p>
+          <small>در صورتی که این خطا ادامه یافت این تب رو ببندید و مجددا به attendence بروید.</small>
+          <Button variant="outline" onClick={reloadListData}>تلاش مجدد</Button>
+        </div> : undefined}
+        {(!loading && error == undefined) ? <DoorkariTable items={items} reload={reloadListData} employeeName={employeeName} employeeRef={employeeRef} /> : undefined}
+
       </div>
     </>
   )
@@ -138,7 +145,15 @@ export function DoorkariTable({ items, reload, employeeName, employeeRef }: { it
             creator = 'انشالله';
             status_display = 'انشالله';
             description = 'حضوری';
-            status = RecordStatus.Hozuri
+            status = RecordStatus.Hozuri;
+          }
+          else if (item.leaveRequest) {
+            fromTime = '00:00';
+            toTime = fromTime;
+            creator = item.leaveRequest.creator;
+            status_display = item.leaveRequest.status_Display;
+            description = item.leaveRequest.leaveTypeTitle + '-' + item.leaveRequest.isDailyTitle;
+            status = RecordStatus.Morakhasi;
           }
           else if (isOffDay) {
             status_display = 'تعطیل';
@@ -149,10 +164,13 @@ export function DoorkariTable({ items, reload, employeeName, employeeRef }: { it
             description = '';
           }
           return (
-            <TableRow key={index} className={item.weekday >= 5 ? "bg-gray-300 hover:bg-gray-400" : (status == RecordStatus.None ? "bg-red-200 hover:bg-red-300" : (status == RecordStatus.DoorKari ? "bg-green-100" : ""))}>
+            <TableRow key={index} className={item.weekday >= 5 ? "bg-gray-300 hover:bg-gray-400" : (status == RecordStatus.None ? "bg-red-200 hover:bg-red-300" :
+              (status == RecordStatus.DoorKari ? "bg-green-100" :
+                (status == RecordStatus.Morakhasi ? "bg-orange-300" : "")
+              ))}>
               <TableCell className="text-center">{item.date}-{weekdayName(item.weekday - 1)}</TableCell>
               <TableCell className="text-center">{fromTime}-{toTime}</TableCell>
-              <TableCell className="text-center">{status != RecordStatus.None ? calculateTimeSpent(fromTime, toTime) : '.'}</TableCell>
+              <TableCell className="text-center">{status != RecordStatus.None && status != RecordStatus.Morakhasi ? calculateTimeSpent(fromTime, toTime) : '.'}</TableCell>
               <TableCell className="text-center">{creator}</TableCell>
               <TableCell className="text-center">{status_display}</TableCell>
               <TableCell className="text-center">{description}</TableCell>
@@ -172,6 +190,9 @@ function ActionButton({ status, item, reload, employeeRef, employeeName }: { sta
       <>
         <DoorkariDialog employeeName={employeeName} employeeRef={employeeRef} item={item} reload={reload} />
         <HozuriDialog item={item} reload={reload} />
+        <Button size="sm" variant="destructive">
+          <a href="https://attendance.snappfood.ir/SnappPortal/~/hcm-leave-portal/leave-request/" target="_blank">ثبت مرخصی</a>
+        </Button>
       </>
     );
   if (status == RecordStatus.Hozuri)

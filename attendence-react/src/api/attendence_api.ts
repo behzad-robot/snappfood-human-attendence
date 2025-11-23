@@ -1,11 +1,19 @@
 import type { DoorKariItem } from "@/data/door_kari_item";
 import type { HozuriItem } from "@/data/hozuri_item";
+import type { LeaveRequest } from "@/data/leave_request";
 
 let searchParams = new URLSearchParams(window.location.search);
 export let TOKEN = searchParams.get('token')?.toString() || '';
 export let COOKIE = searchParams.get('cookie')?.toString() || '';
 const IS_DEV = (import.meta.env.DEV);
 const HOZURI_LOCAL_STORAGE = 'hozuri-local-storage';
+const delay = (ms: number): Promise<void> => {
+    return new Promise((resolve, _) => {
+        setTimeout(() => {
+            resolve();
+        }, ms);
+    });
+};
 export const ATTENDENCE_API = {
     async getHozuriList(): Promise<HozuriItem[]> {
         let str = window.localStorage.getItem(HOZURI_LOCAL_STORAGE);
@@ -18,6 +26,7 @@ export const ATTENDENCE_API = {
     },
     async getDoorKariList(): Promise<DoorKariItem[]> {
         if (IS_DEV) {
+            await delay(1_000);
             return [
                 {
                     "number": "1563373",
@@ -1425,7 +1434,7 @@ export const ATTENDENCE_API = {
         }
     },
     async getEmployeeName(): Promise<string> {
-        if(IS_DEV)
+        if (IS_DEV)
             return 'بهزاد تست';
         const url = 'https://attendance.snappfood.ir/SnappPortal/api/FrontEnd/Shell/StaticData';
         const options = {
@@ -1482,6 +1491,143 @@ export const ATTENDENCE_API = {
             const response = await fetch(url, options);
             const data = await response.text();
             return parseInt(data);
+        } catch (error) {
+            console.error(error);
+        }
+    },
+    async getMorakhasiList(): Promise<LeaveRequest[]> {
+        if (IS_DEV) {
+            return [
+                {
+                    "requestNumber": "520576",
+                    "requestDate": 1763769600000,
+                    "requestDate_Display": "‎1404/09/01‏",
+                    "fullName": "بهزاد عابدین زاده",
+                    "leaveTypeTitle": "مرخصی استحقاقی",
+                    "isDailyTitle": "روزانه",
+                    "fromDateTime": 1763510400000,
+                    "fromDateTime_Display": "‎00:00 1404/08/28‏",
+                    "toDateTime": 1763510400000,
+                    "toDateTime_Display": "‎00:00 1404/08/28‏",
+                    "substituteCode": "",
+                    "substituteName": "",
+                    "status": 1,
+                    "status_Display": "ذخیره شده",
+                    "creator": "بهزاد عابدین زاده",
+                    "branchTitle": "",
+                    "durationTitle": "07:00",
+                    "id": 558868
+                },
+                {
+                    "requestNumber": "505238",
+                    "requestDate": 1760227200000,
+                    "requestDate_Display": "‎1404/07/20‏",
+                    "fullName": "بهزاد عابدین زاده",
+                    "leaveTypeTitle": "مرخصی استحقاقی",
+                    "isDailyTitle": "روزانه",
+                    "fromDateTime": 1757808000000,
+                    "fromDateTime_Display": "‎00:00 1404/06/23‏",
+                    "toDateTime": 1757980800000,
+                    "toDateTime_Display": "‎00:00 1404/06/25‏",
+                    "substituteCode": "",
+                    "substituteName": "",
+                    "status": 10,
+                    "status_Display": "تایید نهایی",
+                    "creator": "بهزاد عابدین زاده",
+                    "branchTitle": "",
+                    "durationTitle": "27:00",
+                    "id": 541401
+                },
+                {
+                    "requestNumber": "486247",
+                    "requestDate": 1754956800000,
+                    "requestDate_Display": "‎1404/05/21‏",
+                    "fullName": "بهزاد عابدین زاده",
+                    "leaveTypeTitle": "مرخصی استحقاقی",
+                    "isDailyTitle": "روزانه",
+                    "fromDateTime": 1752364800000,
+                    "fromDateTime_Display": "‎00:00 1404/04/22‏",
+                    "toDateTime": 1752537600000,
+                    "toDateTime_Display": "‎00:00 1404/04/24‏",
+                    "substituteCode": "",
+                    "substituteName": "",
+                    "status": 10,
+                    "status_Display": "تایید نهایی",
+                    "creator": "بهزاد عابدین زاده",
+                    "branchTitle": "",
+                    "durationTitle": "27:00",
+                    "id": 521241
+                },
+                {
+                    "requestNumber": "428159",
+                    "requestDate": 1738972800000,
+                    "requestDate_Display": "‎1403/11/20‏",
+                    "fullName": "بهزاد عابدین زاده",
+                    "leaveTypeTitle": "مرخصی استحقاقی",
+                    "isDailyTitle": "روزانه",
+                    "fromDateTime": 1737504000000,
+                    "fromDateTime_Display": "‎00:00 1403/11/03‏",
+                    "toDateTime": 1737504000000,
+                    "toDateTime_Display": "‎00:00 1403/11/03‏",
+                    "substituteCode": "",
+                    "substituteName": "",
+                    "status": 10,
+                    "status_Display": "تایید نهایی",
+                    "creator": "بهزاد عابدین زاده",
+                    "branchTitle": "",
+                    "durationTitle": "08:00",
+                    "id": 459098
+                },
+                {
+                    "requestNumber": "389129",
+                    "requestDate": 1725840000000,
+                    "requestDate_Display": "‎1403/06/19‏",
+                    "fullName": "بهزاد عابدین زاده",
+                    "leaveTypeTitle": "مرخصی استحقاقی",
+                    "isDailyTitle": "روزانه",
+                    "fromDateTime": 1725321600000,
+                    "fromDateTime_Display": "‎00:00 1403/06/13‏",
+                    "toDateTime": 1725321600000,
+                    "toDateTime_Display": "‎00:00 1403/06/13‏",
+                    "substituteCode": "",
+                    "substituteName": "",
+                    "status": 10,
+                    "status_Display": "تایید نهایی",
+                    "creator": "بهزاد عابدین زاده",
+                    "branchTitle": "",
+                    "durationTitle": "09:00",
+                    "id": 417373
+                }
+            ];
+        }
+        const url = 'https://attendance.snappfood.ir/SnappPortal/api/Framework/EntityView/Query';
+        const options = {
+            method: 'POST',
+            headers: {
+                accept: '*/*',
+                'accept-language': 'en-US,en;q=0.9,fa;q=0.8,de;q=0.7',
+                'content-type': 'application/json',
+                cookie: COOKIE,
+                origin: 'https://attendance.snappfood.ir',
+                priority: 'u=1, i',
+                referer: 'https://attendance.snappfood.ir/SnappPortal/apps/hcm-leave-portal/list-leave-requests?componentName=SystemGroup.HCM.Leave&entity=LeaveRequest&view=PortalAllSelfServiceEmployeeLeaveRequests',
+                'sec-ch-ua': '"Chromium";v="142", "Google Chrome";v="142", "Not_A Brand";v="99"',
+                'sec-ch-ua-mobile': '?0',
+                'sec-ch-ua-platform': '"macOS"',
+                'sec-fetch-dest': 'empty',
+                'sec-fetch-mode': 'cors',
+                'sec-fetch-site': 'same-origin',
+                'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36',
+                'x-requested-with': 'XMLHttpRequest',
+                'x-xsrf-token': TOKEN
+            },
+            body: '{"entityViewName":"SystemGroup.HCM.Leave/LeaveRequest/PortalAllSelfServiceEmployeeLeaveRequests","pageSize":50,"pageIndex":0,"searchText":null,"parameters":null,"sorts":null,"filters":null,"source":"list"}'
+        };
+
+        try {
+            const response = await fetch(url, options);
+            const data = await response.json();
+            return data;
         } catch (error) {
             console.error(error);
         }

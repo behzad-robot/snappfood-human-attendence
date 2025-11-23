@@ -49,7 +49,7 @@ export function HozuriDialog({ item, reload }: { item: KarItem, reload: Function
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel>بازکشت</AlertDialogCancel>
+                    <AlertDialogCancel>بازگشت</AlertDialogCancel>
                     <AlertDialogAction onClick={async () => {
                         let _items = await ATTENDENCE_API.getHozuriList();
                         let newItem = { date: item.date, startTime, endTime };
