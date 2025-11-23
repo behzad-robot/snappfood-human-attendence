@@ -20,6 +20,8 @@ import { FoodousDialog } from "./foodous-dialog"
 import { UserInfoView } from "./user-info-view"
 import { HelperLinksDialog } from "./helper-links-dialog"
 import { Spinner } from "./components/ui/spinner"
+import { GuideDialog } from "./guide-dialog"
+import { FeaturesDialog } from "./features-dialog"
 const normalise = s => s.replace(/[\u200E\u200F]/g, '');
 const weekdayName = (n: number) =>
   moment().locale('fa').day(n).format('dddd');
@@ -89,21 +91,25 @@ function App() {
     <>
       <div className="container mx-auto px-4">
         <div className="w-full flex flex-row gap-2 items-center content-center mb-2 mt-4">
-          <h1 className="font-black">سامانه ثبت تردد انسان دوست اسنپفود</h1>
+          <h1 className="font-black">افزونه ثبت تردد انسان دوست اسنپفود</h1>
           <h3>{todayString}</h3>
           <UserInfoView />
           <HelperLinksDialog />
           <Button variant="outline" size="icon-sm" onClick={reloadListData}>🔄</Button>
           <div className="grow" />
+          <GuideDialog />
+          <FeaturesDialog />
           <div className="text-xs">ساخته شده توسط همکاران اسنپفود</div>
           <FoodousDialog />
         </div>
         {loading ? <div className="text-center py-4 flex flex-row justify-center items-center content-center"><Spinner className="size-12" /></div> : undefined}
-        {error ? <div className="bg-red-400 text-2xl rounded-md py-2 px-4 flex flex-col gap-2 font-sans">
+        {error ? <div className="bg-gray-800 text-white text-2xl rounded-md py-2 px-4 flex flex-col gap-2 font-sans">
           <h1>خطا:</h1>
-          <p>{error}</p>
+          <p>وضعیت اتصال vpn خود را چک کنید.</p>
+          <p>حتما یکبار در attendence لاگین کرده باشید و سپس این افزونه رو باز کنید.</p>
+          <p className="text-xs">{error}</p>
           <small>در صورتی که این خطا ادامه یافت این تب رو ببندید و مجددا به attendence بروید.</small>
-          <Button variant="outline" onClick={reloadListData}>تلاش مجدد</Button>
+          <Button variant="destructive" onClick={reloadListData}>تلاش مجدد</Button>
         </div> : undefined}
         {(!loading && error == undefined) ? <DoorkariTable items={items} reload={reloadListData} employeeName={employeeName} employeeRef={employeeRef} /> : undefined}
 
@@ -166,7 +172,7 @@ export function DoorkariTable({ items, reload, employeeName, employeeRef }: { it
           return (
             <TableRow key={index} className={item.weekday >= 5 ? "bg-gray-300 hover:bg-gray-400" : (status == RecordStatus.None ? "bg-red-200 hover:bg-red-300" :
               (status == RecordStatus.DoorKari ? "bg-green-100" :
-                (status == RecordStatus.Morakhasi ? "bg-orange-300" : "")
+                (status == RecordStatus.Morakhasi ? "bg-orange-300 hover:bg-orange-400" : "")
               ))}>
               <TableCell className="text-center">{item.date}-{weekdayName(item.weekday - 1)}</TableCell>
               <TableCell className="text-center">{fromTime}-{toTime}</TableCell>

@@ -7,5 +7,7 @@
 ✅ imporve loading view!
 ✅ better error handling!
 ✅ support morakhasi!
-❌ rename => سامانه ثبت تردد انسان دوست اسنپفود
+✅ fix name!
+✅ guide dialog!
+✅ features dialog!
 
