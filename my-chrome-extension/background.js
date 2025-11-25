@@ -3,8 +3,9 @@ const NOTIF_INTERVAL = 1_000 * 60 * 60 * 2;
 console.log(`loaded background.js`);
 const checkShowNotif = async () => {
     console.log(`check show notif`);
-    let storage = chrome.storage.local.get();
+    let storage = await chrome.storage.local.get();
     let lastShowNotif = storage.lastShowNotif;
+    console.log(`lastShowNotif`, lastShowNotif);
     if (lastShowNotif == undefined)
         lastShowNotif = 0;
     if (Date.now() - lastShowNotif <= NOTIF_INTERVAL)
