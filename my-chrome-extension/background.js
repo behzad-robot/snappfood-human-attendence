@@ -1,12 +1,16 @@
 let last_popup_show = 0;
-let last_notif_show = 0;
 const NOTIF_INTERVAL = 1_000 * 60 * 60 * 2;
 console.log(`loaded background.js`);
-const checkShowNotif = () => {
+const checkShowNotif = async () => {
     console.log(`check show notif`);
-    if (Date.now() - last_notif_show <= NOTIF_INTERVAL)
+    let storage = chrome.storage.local.get();
+    let lastShowNotif = storage.lastShowNotif;
+    if (lastShowNotif == undefined)
+        lastShowNotif = 0;
+    if (Date.now() - lastShowNotif <= NOTIF_INTERVAL)
         return;
-    last_notif_show = Date.now();
+    lastShowNotif = Date.now();
+    chrome.storage.local.set({ ...storage, lastShowNotif: lastShowNotif });
     chrome.notifications.create({
         type: "basic",
         iconUrl: "icons/icon-128.png",
