@@ -1,6 +1,8 @@
 import type { DoorKariItem } from "@/data/door_kari_item";
 import type { HozuriItem } from "@/data/hozuri_item";
 import type { LeaveRequest } from "@/data/leave_request";
+import { MOCK_HOZURI_DATA } from "./mock_hozuri_data";
+import type { AttendenceStatusDto } from "@/data/attendence_status_dto";
 
 let searchParams = new URLSearchParams(window.location.search);
 export let TOKEN = searchParams.get('token')?.toString() || '';
@@ -1627,6 +1629,44 @@ export const ATTENDENCE_API = {
         try {
             const response = await fetch(url, options);
             const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error(error);
+        }
+    },
+    async getAllStatusList({
+        employeeId, fromDate, toDate
+    }: {
+        employeeId: number,
+        fromDate: string,
+        toDate: string,
+    }): Promise<AttendenceStatusDto[]> {
+        if (IS_DEV)
+            return MOCK_HOZURI_DATA;
+        const url = `https://attendance.snappfood.ir/SnappPortal/api/HCM/AttendanceCalculation/Portal/AttendanceCalculation/GetAllPairAttendanceDataInfo?EmployeeId=${employeeId}&FromDate=${fromDate}&ToDate=${toDate}`;
+        const options = {
+            method: 'GET',
+            headers: {
+                accept: 'application/json, text/plain, */*',
+                'accept-language': 'en-US,en;q=0.9,fa;q=0.8,de;q=0.7',
+                cookie: COOKIE,
+                priority: 'u=1, i',
+                referer: 'https://attendance.snappfood.ir/SnappPortal/apps/hcm-leave-portal/m/leave-request',
+                'sec-ch-ua': '"Chromium";v="142", "Google Chrome";v="142", "Not_A Brand";v="99"',
+                'sec-ch-ua-mobile': '?1',
+                'sec-ch-ua-platform': '"Android"',
+                'sec-fetch-dest': 'empty',
+                'sec-fetch-mode': 'cors',
+                'sec-fetch-site': 'same-origin',
+                'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Mobile Safari/537.36',
+                'x-xsrf-token': TOKEN,
+            }
+        };
+
+        try {
+            const response = await fetch(url, options);
+            const data = await response.json();
+            // console.log(data);
             return data;
         } catch (error) {
             console.error(error);

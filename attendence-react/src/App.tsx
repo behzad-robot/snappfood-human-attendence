@@ -48,10 +48,14 @@ function App() {
       let doorKariItems = await ATTENDENCE_API.getDoorKariList();
       let hozuriItems = await ATTENDENCE_API.getHozuriList();
       let leaveRequests = await ATTENDENCE_API.getMorakhasiList();
-      // leaveRequests.map((r) => {
-      //   console.log(`leave request:`, r.fromDateTime_Display, '=>');
-      //   console.log(moment(r.fromDateTime).locale('fa').format('YYYY/MM/DD'));
-      // });
+      const endOfToday = moment().endOf('day').valueOf();
+      const sixtyDaysAgo = moment().subtract(60, 'days').startOf('day').valueOf();
+      console.log(`endOfToday=`, endOfToday, 'sixtyDaysAgo=', sixtyDaysAgo);
+      let status_list = await ATTENDENCE_API.getAllStatusList({
+        employeeId: ref,
+        toDate: endOfToday.toString(),
+        fromDate: sixtyDaysAgo.toString(),
+      });
       console.log(`door kari api:`, doorKariItems);
       let _items: KarItem[] = [];
       let offset = 0;
@@ -63,6 +67,11 @@ function App() {
         let doorKariItem = doorKariItems.find(t => normalise(t.fromDateTime_Display) == normalise(dateStr));
         let hozuriItem = doorKariItem != undefined ? undefined : hozuriItems.find(c => normalise(c.date) == normalise(dateStr));
         let leaveRequest = leaveRequests.find(t => normalise(moment(t.fromDateTime).locale('fa').format('YYYY/MM/DD')) == normalise(dateStr));
+        if (hozuriItem != undefined) {
+          hozuriItem.status_dtos = status_list.filter(c => normalise(c.aaA_Range).indexOf(dateStr) != -1);
+          if (hozuriItem.status_dtos == undefined)
+            hozuriItem.status_dtos = [];
+        }
         let item: KarItem = {
           date: dateStr,
           weekday: d.weekday(),
@@ -111,13 +120,13 @@ function App() {
           <small>در صورتی که این خطا ادامه یافت این تب رو ببندید و مجددا به attendence بروید.</small>
           <Button variant="destructive" onClick={reloadListData}>تلاش مجدد</Button>
         </div> : undefined}
-        {(!loading && error == undefined) ? <DoorkariTable items={items} reload={reloadListData} employeeName={employeeName} employeeRef={employeeRef} /> : undefined}
+        {(!loading && error == undefined) ? <DaysTable items={items} reload={reloadListData} employeeName={employeeName} employeeRef={employeeRef} /> : undefined}
 
       </div>
     </>
   )
 }
-export function DoorkariTable({ items, reload, employeeName, employeeRef }: { items: KarItem[], reload: Function, employeeRef: number, employeeName: string }) {
+export function DaysTable({ items, reload, employeeName, employeeRef }: { items: KarItem[], reload: Function, employeeRef: number, employeeName: string }) {
   return (
     <Table>
       {/* <TableCaption>A list of your recent invoices.</TableCaption> */}
@@ -148,9 +157,10 @@ export function DoorkariTable({ items, reload, employeeName, employeeRef }: { it
           else if (item.hozuriItem) {
             fromTime = item.hozuriItem.startTime;
             toTime = item.hozuriItem.endTime;
-            creator = 'انشالله';
-            status_display = 'انشالله';
-            description = 'حضوری';
+
+            creator = item.hozuriItem.status_dtos.length == 0 ? 'انشالله' : item.hozuriItem.status_dtos[0].shiftTitle;
+            status_display = item.hozuriItem.status_dtos.length == 0 ? 'انشالله' : item.hozuriItem.status_dtos[0].attendanceStatusTitle;
+            description = item.hozuriItem.status_dtos.length == 0 ? 'حضوری' : ('حضوری سیستمی - ' + item.hozuriItem.status_dtos[0].startRfidGateTitle);
             status = RecordStatus.Hozuri;
           }
           else if (item.leaveRequest) {
@@ -171,7 +181,7 @@ export function DoorkariTable({ items, reload, employeeName, employeeRef }: { it
           }
           return (
             <TableRow key={index} className={item.weekday >= 5 ? "bg-gray-300 hover:bg-gray-400" : (status == RecordStatus.None ? "bg-red-200 hover:bg-red-300" :
-              (status == RecordStatus.DoorKari ? "bg-green-100" :
+              (status == RecordStatus.DoorKari || (status == RecordStatus.Hozuri && status != 'انشالله') ? "bg-green-100 hover:bg-green-200" :
                 (status == RecordStatus.Morakhasi ? "bg-orange-300 hover:bg-orange-400" : "")
               ))}>
               <TableCell className="text-center">{item.date}-{weekdayName(item.weekday - 1)}</TableCell>
