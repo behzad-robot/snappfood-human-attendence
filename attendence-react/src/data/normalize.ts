@@ -1,0 +1,1 @@
+export const normalise = s => s.replace(/[\u200E\u200F]/g, '');

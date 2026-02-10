@@ -5,7 +5,9 @@ import type { LeaveRequest } from "./leave_request";
 export interface KarItem {
     date: string;
     weekday: number;
-    hozuriItem?: HozuriItem;
+    // hozuriItem?: HozuriItem;
+    apiHozuriItem?: HozuriItem;
+    localHouzriItem?: HozuriItem;
     doorKariItem?: DoorKariItem;
     leaveRequest?: LeaveRequest;
 }

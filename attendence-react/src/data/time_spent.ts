@@ -14,18 +14,23 @@ export function calculateTimeSpent(startTime: string, endTime: string): string {
     if (h > 23 || min > 59) throw new Error('Invalid time');
     return h * 60 + min; // total minutes
   };
+  try {
+    const startMin = parse(startTime);
+    const endMin = parse(endTime);
 
-  const startMin = parse(startTime);
-  const endMin = parse(endTime);
+    if (endMin <= startMin) throw new Error('End time must be after start time');
 
-  if (endMin <= startMin) throw new Error('End time must be after start time');
+    const diff = endMin - startMin;
+    const hh = Math.floor(diff / 60);
+    const mm = diff % 60;
 
-  const diff = endMin - startMin;
-  const hh = Math.floor(diff / 60);
-  const mm = diff % 60;
-
-  return `${hh.toString().padStart(2, '0')}:${mm.toString().padStart(2, '0')}`;
+    return `${hh.toString().padStart(2, '0')}:${mm.toString().padStart(2, '0')}`;
+  }
+  catch (err) {
+    return `${err.toString()}`;
+  }
 }
+
 
 // /* ---- demo ---- */
 // console.log(calculateTimeSpent('9:00', '18:00'));  // "09:00"

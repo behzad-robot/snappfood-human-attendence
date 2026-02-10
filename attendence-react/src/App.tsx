@@ -22,7 +22,10 @@ import { HelperLinksDialog } from "./helper-links-dialog"
 import { Spinner } from "./components/ui/spinner"
 import { GuideDialog } from "./guide-dialog"
 import { FeaturesDialog } from "./features-dialog"
-const normalise = s => s.replace(/[\u200E\u200F]/g, '');
+import type { HozuriItem } from "./data/hozuri_item"
+import { normalise } from "./data/normalize"
+import { getLocalHolidays, isLocalHoliday, setLocalHolidays } from "./api/local_holidays"
+
 const weekdayName = (n: number) =>
   moment().locale('fa').day(n).format('dddd');
 
@@ -46,7 +49,7 @@ function App() {
       setEmployeeName(name);
 
       let doorKariItems = await ATTENDENCE_API.getDoorKariList();
-      let hozuriItems = await ATTENDENCE_API.getHozuriList();
+      let localHozuriItems = await ATTENDENCE_API.getLocalHozuriList();
       let leaveRequests = await ATTENDENCE_API.getMorakhasiList();
       const endOfToday = moment().endOf('day').valueOf();
       const sixtyDaysAgo = moment().subtract(60, 'days').startOf('day').valueOf();
@@ -65,18 +68,25 @@ function App() {
         let d = moment().locale('fa').subtract(offset, "days");
         let dateStr = d.format('YYYY/MM/DD');
         let doorKariItem = doorKariItems.find(t => normalise(t.fromDateTime_Display) == normalise(dateStr));
-        let hozuriItem = doorKariItem != undefined ? undefined : hozuriItems.find(c => normalise(c.date) == normalise(dateStr));
+        // let hozuriItem = doorKariItem != undefined ? undefined : hozuriItems.find(c => normalise(c.date) == normalise(dateStr));
         let leaveRequest = leaveRequests.find(t => normalise(moment(t.fromDateTime).locale('fa').format('YYYY/MM/DD')) == normalise(dateStr));
-        if (hozuriItem != undefined) {
-          hozuriItem.status_dtos = status_list.filter(c => normalise(c.aaA_Range).indexOf(dateStr) != -1);
-          if (hozuriItem.status_dtos == undefined)
-            hozuriItem.status_dtos = [];
+        // if (hozuriItem != undefined) {
+        //   hozuriItem.status_dtos = status_list.filter(c => normalise(c.aaA_Range).indexOf(dateStr) != -1);
+        //   if (hozuriItem.status_dtos == undefined)
+        //     hozuriItem.status_dtos = [];
+        // }
+        let localHozuriItem = localHozuriItems.find(c => normalise(c.date) == normalise(dateStr));
+        let apiHozuriItem: HozuriItem = undefined;
+        let status_dtos = status_list.filter(c => normalise(c.aaA_Range).indexOf(dateStr) != -1);
+        if (status_dtos.length != 0) {
+          apiHozuriItem = { date: dateStr, startTime: '09:00', endTime: '6:00', status_dtos };
         }
         let item: KarItem = {
           date: dateStr,
           weekday: d.weekday(),
           doorKariItem: doorKariItem,
-          hozuriItem: hozuriItem,
+          localHouzriItem: localHozuriItem,
+          apiHozuriItem: apiHozuriItem,
           leaveRequest: leaveRequest,
         };
         // console.log(d.format('YYYY/MM/DD'), item);
@@ -154,14 +164,22 @@ export function DaysTable({ items, reload, employeeName, employeeRef }: { items:
             description = item.doorKariItem.description;
             status = RecordStatus.DoorKari;
           }
-          else if (item.hozuriItem) {
-            fromTime = item.hozuriItem.startTime;
-            toTime = item.hozuriItem.endTime;
-
-            creator = item.hozuriItem.status_dtos.length == 0 ? 'انشالله' : item.hozuriItem.status_dtos[0].shiftTitle;
-            status_display = item.hozuriItem.status_dtos.length == 0 ? 'انشالله' : item.hozuriItem.status_dtos[0].attendanceStatusTitle;
-            description = item.hozuriItem.status_dtos.length == 0 ? 'حضوری' : ('حضوری سیستمی - ' + item.hozuriItem.status_dtos[0].startRfidGateTitle);
+          else if (item.localHouzriItem != undefined || item.apiHozuriItem != undefined) {
             status = RecordStatus.Hozuri;
+            if (item.apiHozuriItem) {
+              fromTime = item.apiHozuriItem.startTime;
+              toTime = item.apiHozuriItem.endTime;
+              creator = item.apiHozuriItem.status_dtos[0].shiftTitle;
+              status_display = item.apiHozuriItem.status_dtos.length == 0 ? 'انشالله' : item.apiHozuriItem.status_dtos[0].attendanceStatusTitle;
+              description = ('حضوری سیستمی - ' + item.apiHozuriItem.status_dtos[0].startRfidGateTitle);
+            }
+            else {
+              fromTime = item.localHouzriItem.startTime;
+              toTime = item.localHouzriItem.endTime;
+              creator = 'با اطلاعات سیستم همخوانی ندارد!'
+              status_display = 'انشالله';
+              description = 'جضوری';
+            }
           }
           else if (item.leaveRequest) {
             fromTime = '00:00';
@@ -179,11 +197,22 @@ export function DaysTable({ items, reload, employeeName, employeeRef }: { items:
             status_display = 'ثبت نشده';
             description = '';
           }
+          if(isLocalHoliday(item.date))
+            status_display = 'تعطیل رسمی'
           return (
-            <TableRow key={index} className={item.weekday >= 5 ? "bg-gray-300 hover:bg-gray-400" : (status == RecordStatus.None ? "bg-red-200 hover:bg-red-300" :
-              (status == RecordStatus.DoorKari || (status == RecordStatus.Hozuri && status != 'انشالله') ? "bg-green-100 hover:bg-green-200" :
-                (status == RecordStatus.Morakhasi ? "bg-orange-300 hover:bg-orange-400" : "")
-              ))}>
+            <TableRow key={index} className={
+              isOffDay || isLocalHoliday(item.date) ? "bg-gray-300 hover:bg-gray-400" :
+                (
+                  status == RecordStatus.None ? "bg-red-200 hover:bg-red-300" :
+                    (status == RecordStatus.DoorKari ? "bg-green-100 hover:bg-green-200" :
+                      (status == RecordStatus.Morakhasi ? "bg-orange-300 hover:bg-orange-400" :
+                        (item.apiHozuriItem != undefined ? "bg-green-100 hover:bg-green-200" :
+                          "bg-blue-400 hover:bg-blue-500"
+                        )
+                      )
+                    )
+                )
+            }>
               <TableCell className="text-center">{item.date}-{weekdayName(item.weekday - 1)}</TableCell>
               <TableCell className="text-center">{fromTime}-{toTime}</TableCell>
               <TableCell className="text-center">{status != RecordStatus.None && status != RecordStatus.Morakhasi ? calculateTimeSpent(fromTime, toTime) : '.'}</TableCell>
@@ -197,20 +226,46 @@ export function DaysTable({ items, reload, employeeName, employeeRef }: { items:
           );
         })}
       </TableBody>
-    </Table>
+    </Table >
   )
 }
 function ActionButton({ status, item, reload, employeeRef, employeeName }: { status: string, item: KarItem, reload: Function, employeeRef: number, employeeName: string }) {
-  if (status == RecordStatus.None)
+  if (status == RecordStatus.None) {
+    let isHoliday = isLocalHoliday(item.date);
     return (
       <>
-        <DoorkariDialog employeeName={employeeName} employeeRef={employeeRef} item={item} reload={reload} />
-        <HozuriDialog item={item} reload={reload} />
-        <Button size="sm" variant="destructive">
-          <a href="https://attendance.snappfood.ir/SnappPortal/~/hcm-leave-portal/leave-request/" target="_blank">ثبت مرخصی</a>
+        {isHoliday ? undefined :
+          <>
+            <DoorkariDialog employeeName={employeeName} employeeRef={employeeRef} item={item} reload={reload} />
+            <HozuriDialog item={item} reload={reload} />
+            <Button size="sm" variant="destructive">
+              <a href="https://attendance.snappfood.ir/SnappPortal/~/hcm-leave-portal/leave-request/" target="_blank">ثبت مرخصی</a>
+            </Button>
+          </>
+        }
+        <Button size="sm" variant="secondary" className={isHoliday ? "bg-amber-400 hover:bg-amber-500" : "bg-gray-400 hover:bg-gray-500"} onClick={() => {
+          let allHolidays = getLocalHolidays();
+          if (isHoliday) {
+            let index = allHolidays.findIndex(c => normalise(c) == normalise(item.date));
+            if (index == -1) {
+              window.alert('error:sth went wrong');
+              return;
+            }
+            allHolidays.splice(index, 1);
+            setLocalHolidays(allHolidays);
+            reload();
+          }
+          else {
+            allHolidays.push(item.date);
+            setLocalHolidays(allHolidays);
+            reload();
+          }
+        }}>
+          {isHoliday ? 'تبدیل به روز عادی' : 'تعطیل رسمی'}
         </Button>
       </>
     );
+  }
   if (status == RecordStatus.Hozuri)
     return (<HozuriDialog item={item} reload={reload} />);
   if (status == RecordStatus.DoorKari)

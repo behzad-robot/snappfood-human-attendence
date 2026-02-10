@@ -17,8 +17,8 @@ import { Input } from "./components/ui/input";
 import type { HozuriItem } from "./data/hozuri_item";
 const normalise = s => s.replace(/[\u200E\u200F]/g, '');
 export function HozuriDialog({ item, reload }: { item: KarItem, reload: Function }) {
-    const [startTime, setStartTime] = useState(item.hozuriItem?.startTime ?? '9:00');
-    const [endTime, setEndTime] = useState(item.hozuriItem?.endTime ?? '18:00');
+    const [startTime, setStartTime] = useState(item.localHouzriItem?.startTime ?? '9:00');
+    const [endTime, setEndTime] = useState(item.localHouzriItem?.endTime ?? '18:00');
     return (
         <AlertDialog>
             <AlertDialogTrigger asChild>
@@ -56,11 +56,11 @@ export function HozuriDialog({ item, reload }: { item: KarItem, reload: Function
                                 <div className="bg-orange-300 text-xs text-black py-1 px-2 rounded-2xl">با تاخیر بروز میشود</div>
                                 <div className="grow" />
                             </div>
-                            {item.hozuriItem == undefined || item.hozuriItem?.status_dtos.length == 0 ?
+                            {item.apiHozuriItem == undefined || item.apiHozuriItem?.status_dtos.length == 0 ?
                                 <div>نامشخص</div>
                                 :
                                 <>
-                                    {item.hozuriItem.status_dtos.map((dto, index) => {
+                                    {item.apiHozuriItem.status_dtos.map((dto, index) => {
                                         return (
                                             <div className="w-full py-3" key={index}>
                                                 <div className="w-full grid grid-cols-4 text-center">
@@ -80,7 +80,7 @@ export function HozuriDialog({ item, reload }: { item: KarItem, reload: Function
                 <AlertDialogFooter>
                     <AlertDialogCancel>بازگشت</AlertDialogCancel>
                     <AlertDialogAction onClick={async () => {
-                        let _items = await ATTENDENCE_API.getHozuriList();
+                        let _items = await ATTENDENCE_API.getLocalHozuriList();
                         let newItem: HozuriItem = { date: item.date, startTime, endTime, status_dtos: [] };
                         let index = _items.findIndex(t => normalise(item.date) == normalise(t.date));
                         if (index == -1)
